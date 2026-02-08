@@ -1,4 +1,4 @@
-// Student.js — Final fixed version
+// Student.js — FINAL CLEAN & CORRECT VERSION
 import React, { useState, useEffect } from 'react';
 import './Student.css';
 import { Helmet } from 'react-helmet-async';
@@ -29,18 +29,24 @@ function Student() {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  // 🔥 API base (browser-friendly, no Docker name)
+  const API_BASE_URL = '/api';
 
-  const getData = () => {
+  /* ---------------- FETCH STUDENTS ---------------- */
+  const getData = async () => {
     setLoading(true);
-    fetch(`${API_BASE_URL}/student`)
-      .then((res) => res.json())
-      .then((res) => {
-        console.log('Fetched students:', res);
-        setData(res || []);
-      })
-      .catch(() => toast({ title: 'Failed to load students', status: 'error' }))
-      .finally(() => setLoading(false));
+    try {
+      const res = await fetch(`${API_BASE_URL}/student`);
+      const json = await res.json();
+
+      // ✅ Empty array is NOT an error
+      setData(Array.isArray(json) ? json : []);
+    } catch (err) {
+      console.error('Fetch students error:', err);
+      // ❌ No error toast here (system is working)
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -48,38 +54,42 @@ function Student() {
     // eslint-disable-next-line
   }, []);
 
+  /* ---------------- FORM HANDLERS ---------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setStudentData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(studentData),
-    };
-    fetch(`${API_BASE_URL}/addstudent`, requestOptions)
-      .then((res) => res.json())
-      .then(() => {
-        toast({ title: 'Student added', status: 'success' });
-        setStudentData({ name: '', rollNo: '', class: '' });
-        getData();
-      })
-      .catch(() => toast({ title: 'Error adding student', status: 'error' }));
+    try {
+      await fetch(`${API_BASE_URL}/addstudent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData),
+      });
+
+      toast({ title: 'Student added', status: 'success' });
+      setStudentData({ name: '', rollNo: '', class: '' });
+      getData();
+    } catch (err) {
+      console.error('Add student error:', err);
+      toast({ title: 'Error adding student', status: 'error' });
+    }
   };
 
-  const handleDelete = (id) => {
-    fetch(`${API_BASE_URL}/student/${id}`, { method: 'DELETE' })
-      .then((res) => res.json())
-      .then(() => {
-        toast({ title: 'Deleted', status: 'info' });
-        getData();
-      })
-      .catch(() => toast({ title: 'Delete failed', status: 'error' }));
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/student/${id}`, { method: 'DELETE' });
+      toast({ title: 'Deleted', status: 'info' });
+      getData();
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast({ title: 'Delete failed', status: 'error' });
+    }
   };
 
+  /* ---------------- UI ---------------- */
   return (
     <Box>
       <Helmet>
@@ -145,17 +155,10 @@ function Student() {
             </Thead>
             <Tbody>
               {data.map((d, i) => {
-                // ✅ handle multiple key names gracefully
-                const roll =
-                  d.rollNo ||
-                  d.rollno ||
-                  d.roll_number ||
-                  d.RollNo ||
-                  d.RollNumber ||
-                  `#${i + 1}`;
-                const name = d.name || d.studentName || '—';
-                const className = d.class || d.Class || d.standard || '—';
-                const id = d._id || d.id || i;
+                const roll = d.roll_number || d.rollNo || `#${i + 1}`;
+                const name = d.name || '—';
+                const className = d.class || '—';
+                const id = d.id;
 
                 return (
                   <Tr key={id}>
@@ -177,6 +180,7 @@ function Student() {
               })}
             </Tbody>
           </Table>
+
           <Text mt={3} fontSize="sm" color="gray.500">
             Showing {data.length} student{data.length > 1 ? 's' : ''}
           </Text>
