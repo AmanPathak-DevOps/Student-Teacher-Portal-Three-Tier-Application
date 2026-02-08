@@ -86,4 +86,9 @@ docker ps
 ```
 
 ---
+4. **Access the Application:**
+
+   Open your favorite browser and visit [http://your_ip_address or domain_name). Enjoy exploring the MERN stack application!
+
+   <img width="1064" height="517" alt="image" src="https://github.com/user-attachments/assets/fdb0710f-0a27-4ee0-a352-dc61f3aabacc" />
 
