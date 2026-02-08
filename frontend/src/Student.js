@@ -30,7 +30,7 @@ function Student() {
   const toast = useToast();
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-  console.log(`${API_BASE_URL}: ENV`);
+  // console.log(`${API_BASE_URL}: ENV`);
   const getData = () => {
     setLoading(true);
     fetch(`${API_BASE_URL}/student`)
