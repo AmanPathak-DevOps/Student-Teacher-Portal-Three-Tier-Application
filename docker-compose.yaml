@@ -1,9 +1,9 @@
-version: '3.9'
+# version: '3.8'  # not required with Docker Compose v2 format
 
 services:
-  db:
-    container_name: mysql-container
+  mysql-container:
     image: mysql:8.0.40-oraclelinux9
+    container_name: mysql-container
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: mysql123
@@ -19,29 +19,27 @@ services:
       retries: 5
 
   backend:
-    container_name: backend
     build:
       context: backend/
     image: backend-image
+    container_name: backend
     restart: always
     ports:
       - "3500:3500"
     environment:
-      host: db
-      user: root
-      password: mysql123
-      database: school
+      DB_HOST: mysql-container
+      DB_USER: root
+      DB_PASSWORD: mysql123
+      DB_NAME: school
     depends_on:
-      db:
+      mysql-container:
         condition: service_healthy
 
   frontend:
-    container_name: frontend
     build:
       context: frontend/
-      args:
-        REACT_APP_API_BASE_URL: http://localhost:3500
     image: frontend-image
+    container_name: frontend
     restart: always
     ports:
       - "80:80"
@@ -53,4 +51,3 @@ services:
 
 volumes:
   mysql-data:
-

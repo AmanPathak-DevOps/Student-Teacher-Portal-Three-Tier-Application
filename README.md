@@ -72,6 +72,9 @@ Before you begin, ensure that you have the following installed:
 
    Open your favorite browser and visit [http://localhost:80](http://localhost:80). Enjoy exploring the MERN stack application!
 
+   <img width="1064" height="517" alt="image" src="https://github.com/user-attachments/assets/fdb0710f-0a27-4ee0-a352-dc61f3aabacc" />
+
+
 ## Data Persistence
 
 Data persistence is ensured by using Docker volumes. If the MySQL container is deleted, data remains available and is automatically added to a new Docker container by providing the same Docker volume.
